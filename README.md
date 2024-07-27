@@ -196,3 +196,13 @@ node loadData.js
 ```
 
 Asegúrese de que el archivo `loadData.js` esté en el mismo directorio y contenga el código necesario para leer el archivo Excel y cargar los datos en Cassandra.
+
+### 3. Verificacion de la carga
+
+```sql
+SELECT * FROM matches_by_country LIMIT 10;
+```
+
+```sql
+SELECT * FROM matches_by_tournament LIMIT 10;
+```
