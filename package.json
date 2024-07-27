@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "cassandra-driver": "^4.7.2",
+    "xlsx": "^0.18.5"
+  }
+}
