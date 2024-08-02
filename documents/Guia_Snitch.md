@@ -111,9 +111,59 @@ docker exec -it cass_semilla bash
 nodetool status
 ```
 
-## Conclusión
+#### 7. Creación de Nodos Secundarios
 
-Ahora tu contenedor de CassandraDB está configurado con el snitch adecuado y listo para su uso. Puedes proceder con la configuración y administración de tu clúster Cassandra según la guía principal.
+Para crear nodos secundarios, sigue los mismos pasos que para el nodo semilla pero con diferentes nombres y volúmenes.
 
-### Notas: 
-Tenga en cuenta que si creas otro nodo y lo quieres en un rack distinto tienes que volver a poner la sentencia y la configuracion pero ahora solo cambias el rack
+1. **Crear un Volumen para cada Nodo Secundario**
+
+   ```bash
+   docker volume create cassandra2
+   docker volume create cassandra3
+   ```
+
+2. **Iniciar Contenedores para los Nodos Secundarios**
+
+   ```bash
+   docker run --name cass1 -p 9043:9042 -p 7002:7000 -p 7003:7001 -v cassandra2:/etc/cassandra -e CASSANDRA_SEEDS="IP_del_nodo_semilla" -d cassandra
+   docker run --name cass2 -p 9044:9042 -p 7004:7000 -p 7005:7001 -v cassandra3:/etc/cassandra -e CASSANDRA_SEEDS="IP_del_nodo_semilla" -d cassandra
+   ```
+
+3. **Configurar el Snitch en los Nodos Secundarios**
+
+   Navega al volumen de cada nodo secundario (`cassandra2`, `cassandra3`, etc.) y repite los pasos de configuración del snitch:
+
+   - Modifica `cassandra.yaml` para usar `GossipingPropertyFileSnitch`.
+   - Actualiza `cassandra-env.sh` para añadir las opciones JVM.
+   - Modifica `cassandra-rackdc.properties` para que el datacenter sea `UCE` y el rack sea diferente para cada nodo (por ejemplo, `LAB2`, `LAB3`).
+
+4. **Reiniciar los Nodos Secundarios**
+
+   ```bash
+   docker restart cass1
+   docker restart cass2
+   ```
+
+5. **Verificación de Nodos Secundarios**
+
+   Verifica el estado de los nodos secundarios:
+
+   ```bash
+   docker exec -it cass1 bash
+   nodetool status
+
+   docker exec -it cass2 bash
+   nodetool status
+   ```
+
+### Creación de Keyspaces y Tablas
+
+Sigue los pasos de la guía original para crear Keyspaces y tablas, conectándote al nodo semilla mediante `cqlsh`.
+
+### Carga de Datos usando Driver para Leer Archivos
+
+Sigue los pasos de la guía original para cargar datos en Cassandra utilizando Node.js y las dependencias `cassandra-driver` y `xlsx`.
+
+### Conclusión
+
+Siguiendo estos pasos, puedes configurar un clúster de CassandraDB utilizando Docker con la configuración de snitch adecuada. Si tienes alguna duda o encuentras algún problema, no dudes en preguntar.
